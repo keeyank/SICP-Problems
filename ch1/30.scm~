@@ -1,0 +1,30 @@
+(define (sum term next a b)
+  (define (sum-accum a accum)
+    (if (< b a)
+	accum
+	(sum-accum (next a) (+ accum (term a)))))
+  (sum-accum a 0.0))
+
+(define (product term next a b)
+  (define (prod-accum a accum)
+    (if (< b a)
+	accum
+	(prod-accum (next a) (* accum (term a)))))
+  (prod-accum a 1.0))
+
+(define (fact n)
+  (product (lambda (x) x) (lambda (x) (+ x 1)) 1 n))
+
+(define (square x) (* x x))
+
+(define pi
+  (define num-sqrt (product (lambda (x) x)
+			 (lambda (x) (+ x 2))
+			 2 1000000))
+  (define denom-sqrt (product (lambda (x) x)
+			      (lambda (x) (+ x 2))
+			      3 1000000))
+  (* (/ 4 2)
+     (/ (square num-sqrt) (square denom-sqrt))))
+		       
+			     
