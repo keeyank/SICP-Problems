@@ -25,7 +25,7 @@
 (define (add-rat x y)
   (make-rat (+ (* (numer x) (denom y))
 	       (* (numer y) (denom x)))
-	    (* (denom x) (denom y)))
+	    (* (denom x) (denom y))))
 
 (define (sub-rat x y)
   (make-rat (- (* (numer x) (denom y))
@@ -135,5 +135,4 @@
 (perimeter rect3) ;12
 (area rect3) ;9
 
-					; We modified the internal representation of the compound data, but notice how with the better definitions of perimeter and area, we didn' have to modify them at all!!! We just needed to modify our width and height abstraction functions.
-
+; We modified the internal representation of the compound data, but notice how with the better definitions of perimeter and area, we didn' have to modify them at all!!! We just needed to modify our width and height abstraction functions.
