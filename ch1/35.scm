@@ -44,3 +44,14 @@
       1.))
 
 (define e (+ 2 (cont-frac (lambda (x) 1.) euler-pattern 100)))
+
+;; 39
+(define (tan-cf x k)
+  (define (n i)
+    (if (= i 1)
+	x
+	(- (square x))))
+  (define (d i)
+    (- (* 2 i) 1))
+  (cont-frac n d k))
+    

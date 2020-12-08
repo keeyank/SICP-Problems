@@ -56,4 +56,26 @@
 	  ((= m (expmod m n n)) (carm-itr (- m 1)))
 	  (else false)))
   (carm-itr n))
+
+(define (sqrt-1 num base)
+  (if (and (not (= 1 num))
+	   (not (= base num))
+	   (= 1 (remainder (square num) base)))
+      0
+      (remainder (square num) base)))
+
+(define (mr-expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+	 (sqrt-1 (mr-expmod base (/ exp 2) m)
+		 base))
+	(else
+         (remainder (* base (mr-expmod base (- exp 1) m))
+		    m))))
+
+(define (mr-test n count)
+  (cond ((= count 0) true)
+	(not (= 0 (mr-expmod (+ 1 (random (- n 2))) n n)))
+	 (mr-test n (- count 1))
+	(else false)))
 	

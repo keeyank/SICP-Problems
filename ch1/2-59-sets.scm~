@@ -1,0 +1,163 @@
+(Define (square x) (* x x))
+(define (cube x) (* x x x))
+(define (average a b) (/ (+ a b) 2))
+(define (average3 a b c) (/ (+ a b c) 3))
+(define (abs a) (if (< a 0) (- a) a))
+(define (sign a) (if (< a 0) -1 1))
+(define (div a b) (truncate (/ a b)))
+(define (inc n) (+ n 1))
+
+(define (<= a b) (not (> a b)))
+(define (>= a b) (not (< a b)))
+(define (!= a b) (not (= a b)))
+
+(define (even? n) (= (remainder n 2) 0))
+(define (same-parity? a b) (= (remainder a 2)
+			      (remainder b 2)))
+
+;; UNORDERED
+;; No duplicates
+
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((equal? x (car set)) true)
+        (else (element-of-set? x (cdr set)))))
+
+(define (adjoin-set x set)
+  (if (element-of-set? x set)
+      set
+      (cons x set)))
+
+(define (intersection-set set1 set2)
+  (cond ((or (null? set1) (null? set2)) '())
+        ((element-of-set? (car set1) set2)
+         (cons (car set1)
+               (intersection-set (cdr set1) set2)))
+        (else (intersection-set (cdr set1) set2))))
+
+(define (union-set set1 set2)
+  (cond ((null? set1) set2)
+	((element-of-set? (car set1) set2)
+	 (union-set (cdr set1) set2))
+	(else (cons (car set1)
+		    (union-set (cdr set1) set2)))))
+
+(define set1 (adjoin-set 3 (adjoin-set 2 (adjoin-set 1 '()))))
+(element-of-set? 3 set1)
+(define set2 (adjoin-set 5 (adjoin-set 3 (adjoin-set 7 '()))))
+(union-set set1 (intersection-set set1 set2))
+(union-set set1 set2)
+(union-set set1 '())
+(union-set set1 (adjoin-set 10 '()))
+
+;; UNORDERED with duplicates allowed
+
+(define (element-of-set? x set) 
+  (cond ((null? set) false)
+        ((equal? x (car set)) true)
+        (else (element-of-set? x (cdr set)))))
+
+(define (adjoin-set x set) (cons x set)) ; O(1) vs previous O(n)
+
+(define (union-set set1 set2) (append set1 set2)) ; O(n)
+				    ; Where n is min(N(set1), N(set2))
+(define (intersection-set set1 set2)
+  (cond ((or (null? set1) (null? set2)) '())
+        ((element-of-set? (car set1) set2)
+         (cons (car set1)
+               (intersection-set (cdr set1) set2)))
+        (else (intersection-set (cdr set1) set2))))
+
+;; This representation can be good if you're not expecting too many duplicates to be inserted using adjoin-set. Adjoin-set is now O(1), and union-set is O(n) vs the previous n^2 (assuming n is the size of both sets, for simplicity). If there are a lot duplicates, element-of-set can take significantly longer, and thus intersection-set will take longer as well. However, union-set will still take longer since the size of the set is bigger than it should be in the implementation if duplicates are present. but its not n^2 so it may still be faster than the no-duplicates implementation. adjoin-set is always O(1). 
+
+;; ORDERED
+
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((= x (car set)) true)
+        ((< x (car set)) false)
+        (else (element-of-set? x (cdr set)))))
+
+(define (intersection-set set1 set2)
+  (if (or (null? set1) (null? set2))
+      '()
+      (let ((x1 (car set1)) (x2 (car set2)))
+        (cond ((= x1 x2)
+               (cons x1
+                     (intersection-set (cdr set1)
+                                       (cdr set2))))
+              ((< x1 x2)
+               (intersection-set (cdr set1) set2))
+              ((< x2 x1)
+               (intersection-set set1 (cdr set2)))))))
+
+(define (adjoin-set x set)
+  (cond ((null? set) (list x)) ; Equivelant to (cons x '())
+	((> x (car set))
+	 (cons (car set) (adjoin-set x (cdr set))))
+	((< x (car set)) (cons x set))
+	(else set)))
+;; On average, this will run n/2 times.
+
+(define (union-set set1 set2)
+  (cond ((null? set1) set2)
+	((null? set2) set1)
+	((< (car set1) (car set2))
+	 (cons (car set1)
+	       (union-set (cdr set1) set2)))
+	((> (car set1) (car set2))
+	 (cons (car set2)
+	       (union-set set1 (cdr set2))))
+	(else
+	 (cons (car set1)
+	       (union-set (cdr set1) (cdr set2))))))
+;; Theta n, each iteration takes out an element of 1 of 2 sets (each having n elements). Thus, max 2n iterations, which is big theta N.
+
+(define set1 (adjoin-set 1 (adjoin-set 2 (adjoin-set 3 '()))))
+(define set2 (adjoin-set 5 set1))
+(define set3 (adjoin-set 3 (adjoin-set 1 '())))
+(element-of-set? 1 set3)
+(element-of-set? 0 set2)
+(define set4 (adjoin-set 7 set3))
+(define set5 (adjoin-set 5 set3))
+(define set6 (adjoin-set 10 (adjoin-set 11 (adjoin-set 12 '()))))
+
+(union-set set1 set2)
+(union-set set1 set1)
+(union-set set2 set1)
+(union-set set3 '())
+(union-set set3 set4)
+(union-set set6 set1)
+(union-set set2 set6)
+(union-set (union-set (union-set set6 set2) set4)
+	   (union-set (union-set set6 set2) set4))
+
+;; BINARY TREES
+(define (entry tree) (car tree))
+
+(define (left-branch tree) (cadr tree))
+
+(define (right-branch tree) (caddr tree))
+
+(define (make-tree entry left right)
+  (list entry left right))
+
+(define (element-of-set? x set)
+  (cond ((null? set) false)
+        ((= x (entry set)) true)
+        ((< x (entry set))
+         (element-of-set? x (left-branch set)))
+        ((> x (entry set))
+         (element-of-set? x (right-branch set)))))
+
+(define (adjoin-set x set)
+  (cond ((null? set) (make-tree x '() '()))
+        ((= x (entry set)) set)
+        ((< x (entry set))
+         (make-tree (entry set) 
+                    (adjoin-set x (left-branch set))
+                    (right-branch set)))
+        ((> x (entry set))
+         (make-tree (entry set)
+                    (left-branch set)
+                    (adjoin-set x (right-branch set))))))

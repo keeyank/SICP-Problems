@@ -1,4 +1,10 @@
 (define (square x) (* x x))
+(define (cube x) (* x x x))
+
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (remainder a b))))
 
 (define (accumulate combine base-val term next a b)
   (define (accum-itr a accum)
@@ -13,6 +19,16 @@
 	base-val
 	(combine (term a) (accum-rec (next a)))))
   (accum-rec a))
+
+(define (filter-acc combine pred base-val term next a b)
+  (define (acc-itr curr accum)
+    (if (> curr b)
+	accum
+        (if (pred curr)
+	    (acc-itr (next curr)
+		     (combine (term curr) accum))
+	    (acc-itr (next curr) accum))))
+  (acc-itr a base-val))
 
 (define (sum-old term next a b)
   (define (sum-accum a accum)
@@ -53,6 +69,48 @@
 		       4
 		       10000)
 	      4))
-			     
+
+;; 29
+(define (simpsons f a b n)
+  (define h (/ (- b a) n))
+  (define (next x)
+    (+ x (* 2 h)))
+  
+  (* (/ h 3)
+     (+ (* 4
+	   (sum f
+		next
+		(+ a h)
+		(+ a (* (- n 1) h))))
+	(* 2
+	   (sum f
+		next
+		(+ a (* 2 h))
+		(+ a (* (- n 2) h))))
+	(f a)
+	(f (+ a (* n h))))))
+
+;; 33
+(define (prime? n)
+  (define (next n)
+    (if (divides? 2 n)
+	(+ n 1)
+	(+ n 2)))
+  (define (find-divisor test-divisor)
+    (cond ((> (square test-divisor) n) n)
+	  ((divides? test-divisor n) test-divisor)
+	  (else (find-divisor (next test-divisor)))))
+  (= n (find-divisor 2)))
+
+(define (sum-of-square-primes a b)
+  (define (next n) (+ n 1))
+  (filter-acc + prime? 0 square next a b))
+
+(define (prod-of-relatively-prime n)
+  (define (identity n) n)
+  (define (next n) (+ n 1))
+  (define (relative-prime? m)
+    (= 1 (gcd n m)))
+  (filter-acc * relative-prime? 1 identity next 1 n))
+    
 		       
-	     	     

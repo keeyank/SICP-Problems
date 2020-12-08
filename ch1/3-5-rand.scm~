@@ -1,0 +1,42 @@
+(Define (square x) (* x x))
+(define (cube x) (* x x x))
+(define (average a b) (/ (+ a b) 2))
+(define (average3 a b c) (/ (+ a b c) 3))
+(define (abs a) (if (< a 0) (- a) a))
+(define (sign a) (if (< a 0) -1 1))
+(define (div a b) (truncate (/ a b)))
+(define (inc n) (+ n 1))
+
+(define (<= a b) (not (> a b)))
+(define (>= a b) (not (< a b)))
+(define (!= a b) (not (= a b)))
+
+(define (even? n) (= (remainder n 2) 0))
+(define (same-parity? a b) (= (remainder a 2)
+			      (remainder b 2)))
+
+;;1
+(define (make-accum init)
+  (lambda (addend)
+    (set! init (+ init addend))
+    init))
+
+((make-accum 4) 3)
+((make-accum 3) 10)
+(define acc (make-accum 10))
+(define acc2 (make-accum 10))
+(acc 10)
+(acc2 5)
+
+;;2
+(define (make-monitored f)
+  (define count 0)
+  (lambda (arg)
+    (cond ((eq? 'how-many-calls? arg)
+	   count)
+	  ((eq? 'reset-count arg)
+	   (set! count 0))
+	  (else
+	   (set! count (+ 1 count))
+	   (f arg)))))
+;; Note how the lambda procedure is defined within the environment of f, so any calls to it will have access to count.

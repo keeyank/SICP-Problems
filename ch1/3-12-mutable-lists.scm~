@@ -1,0 +1,26 @@
+
+(Define (square x) (* x x))
+(define (cube x) (* x x x))
+(define (average a b) (/ (+ a b) 2))
+(define (average3 a b c) (/ (+ a b c) 3))
+(define (abs a) (if (< a 0) (- a) a))
+(define (sign a) (if (< a 0) -1 1))
+(define (div a b) (truncate (/ a b)))
+(define (inc n) (+ n 1))
+
+(define (<= a b) (not (> a b)))
+(define (>= a b) (not (< a b)))
+(define (!= a b) (not (= a b)))
+
+(define (even? n) (= (remainder n 2) 0))
+(define (same-parity? a b) (= (remainder a 2)
+			      (remainder b 2)))
+
+(define (mystery x)
+  (define (loop x y)
+    (if (null? x)
+        y
+        (let ((temp (cdr x)))
+          (set-cdr! x y)
+          (loop temp x))))
+  (loop x '()))
